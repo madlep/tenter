@@ -1,12 +1,8 @@
 {application, tent_client,
  [
-  {description, ""},
-  {vsn, "1"},
+  {description, "Erlang tent.io client"},
+  {vsn, "0.0.1"},
+  {modules, []},
   {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
-  {mod, { tent_client_app, []}},
-  {env, []}
+  {applications, [ kernel, stdlib ]}
  ]}.

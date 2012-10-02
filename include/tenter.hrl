@@ -1,0 +1,4 @@
+-record(tenter, {
+  servers, 
+  options
+}).

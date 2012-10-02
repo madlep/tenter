@@ -2,7 +2,11 @@
  [
   {description, "Erlang tent.io client"},
   {vsn, "0.0.1"},
-  {modules, []},
+  {modules, [
+    tenter,
+    tenter_discover
+  ]},
   {registered, []},
-  {applications, [ kernel, stdlib ]}
+  {applications, [ kernel, stdlib, ibrowse]},
+  {env, []}
  ]}.

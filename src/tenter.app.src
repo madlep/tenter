@@ -1,4 +1,4 @@
-{application, tent_client,
+{application, tenter,
  [
   {description, "Erlang tent.io client"},
   {vsn, "0.0.1"},

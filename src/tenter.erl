@@ -5,12 +5,12 @@
 
 -export([
   create/2,
-  discover/2
+  discover/1
 ]).
 
 create(Servers, Options) ->
   #tenter{servers=Servers, options=Options}.
 
-discover(Tenter, Url) ->
-  tenter_discovery:discover(Tenter, Url).
+discover(Url) ->
+  tenter_discovery:discover(Url).
 

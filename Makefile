@@ -6,8 +6,8 @@ deps:
 compile: deps
 	rebar compile
 
-dev: compile
-	erl -pa deps/*/ebin -pa ebin -s inets start -s reloader start
+compile-debug: deps
+	rebar -D debug compile
 
 clean:
 	rebar clean

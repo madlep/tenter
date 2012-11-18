@@ -2,6 +2,7 @@
 -author('madlep@madlep.com').
 
 -include("tenter.hrl").
+-include("debug.hrl").
 
 -export([
   discover/1,
@@ -9,6 +10,7 @@
 ]).
 
 discover(Url) ->
+  ?DEBUG("discovering via HEAD call to ~s~n", [Url]),
   case fetch_profile(http_header, ibrowse:send_req(Url, [], head))  of
     {ok, Profiles} ->
       Profiles;
@@ -32,6 +34,7 @@ fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) ->
   end;
 
 fetch_profile(http_header, BadResponse) ->
+  ?DEBUG("unsuccessful HEAD request : ~p~n", [BadResponse]),
   {error, non_success_http_response};
 
 fetch_profile(html_head_tag, _Url) ->

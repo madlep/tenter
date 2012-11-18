@@ -8,32 +8,56 @@
 ]).
 
 discover(Url) ->
-  fetch_profile_urls(Url).
-  % get profile URLs
-    % make HEAD call to URL, capture 'Link' header value(s)
-    % if not in header, GET URL, parse HTML, extract <link rel="tent..."> href values
-  % get each profile URL with 'Accept: application/vnd.tent.v0+json' until one returns json ["https://tent.io/types/info/core/v0.1.0"]["servers"]
-  % add profile URL and profile to tenter record
+  case fetch_profile(http_header, Url)  of
+    {ok, Profiles} ->
+      Profiles;
+    Other ->
+      io:fwrite("couldn't fetch profile URL via HTTP header ~w~n", [Other]),
+      fetch_profile(html_head_tag, Url)
+  end.
 
-fetch_profile_urls(Url) ->
-  maybe_from_html_head(maybe_from_header(Url)).
+fetch_profile(http_header, Url) ->
+  case ibrowse:send_req(Url, [], head) of
+    {ok, StatusCode, Headers, _Body} ->
+      case StatusCode of
+        "200" ->
+          case extract_link_value(Headers) of
+            undefined -> {error, link_header_not_present};
+            LinkHeaderValue -> parse_link_value(LinkHeaderValue)
+          end;
+        "301" ->
+          fetch_profile(http_header, proplists:get_value("Location", Headers));
+        "302" ->
+          fetch_profile(http_header, proplists:get_value("Location", Headers))
+      end;
+    BadResponse ->
+      io:format("unsuccessful HEAD request to ~s : ~p~n", [Url, BadResponse]),
+      {error, non_success_http_response}
+  end;
 
-maybe_from_header(Url) ->
-  extract_link_header(ibrowse:send_req(Url, [], head)).
+fetch_profile(html_head_tag, _Url) ->
+  "foo".
 
-% "<https://tent.titanous.com/profile>; rel=\"https://tent.io/rels/profile\", <https://titanous.tent.is/tent/profile>; rel=\"https://tent.io/rels/profile\", <https://tent.jonathan.cloudmir.com/profile>; rel=\"https://tent.io/rels/profile\""
-extract_link_header({ok, "200", Headers, _Body}) ->
-  extract_tent_rel_link(proplists:get_value("Link", Headers));
-extract_link_header(_RequestFailed) ->
-  not_in_headers.
+parse_link_value(LinkHeaderValue) ->
+  {ok, LinkTokens, _EndLine} = link_header_lexer:string(LinkHeaderValue),
+  {ok, Links} = link_header_parser:parse(LinkTokens),
 
-extract_tent_rel_link(undefined) ->
-  not_in_headers;
-extract_tent_rel_link(_LinkHeader) ->
-  foo.
+  % [[{uri, "/profile"}, {params, [{"rel", "https://tent.io/rels/profile"}]}]]
+  ProfileUrls = lists:foldl(
+    fun(Link, Acc) -> 
+        % [{uri, "/profile"}, {params, [{"rel", "https://tent.io/rels/profile"}]}]
+        [{uri, ProfileUrl}, {params, Params}] = Link,
+        case proplists:get_value("rel", Params) of
+          "https://tent.io/rels/profile" -> 
+            [ProfileUrl | Acc];
+          _Other -> 
+            Acc
+        end
+    end, [], Links),
+  {ok, lists:reverse(ProfileUrls)}.
 
-maybe_from_html_head(not_in_headers) ->
-  foo;
-maybe_from_html_head(FoundUrlsInHeader) ->
-  FoundUrlsInHeader.
-
+extract_link_value(Headers) ->
+  case proplists:get_value("Link", Headers) of
+    undefined -> proplists:get_value("link", Headers);
+    LinkValue -> LinkValue
+  end.

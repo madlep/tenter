@@ -8,6 +8,8 @@ compile: deps
 
 compile-debug: deps
 	rebar -D debug compile
+eunit:
+	rebar skip_deps=true eunit
 
 clean:
 	rebar clean

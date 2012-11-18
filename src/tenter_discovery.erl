@@ -20,7 +20,7 @@ discover(Url) ->
       fetch_profile(html_head_tag, Url)
   end.
 
-fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) ->
+fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) when StatusCode == "200"; StatusCode == "301"; StatusCode == "302" ->
   case StatusCode of
     "200" ->
       case extract_link_value(Headers) of
@@ -41,9 +41,19 @@ fetch_profile(html_head_tag, _Url) ->
   {error, html_head_tag_discover_not_implemented}.
 
 parse_link_value(LinkHeaderValue) ->
-  {ok, LinkTokens, _EndLine} = link_header_lexer:string(LinkHeaderValue),
-  {ok, Links} = link_header_parser:parse(LinkTokens),
+  case link_header_lexer:string(LinkHeaderValue) of
+    {ok, LinkTokens, _EndLine} ->
+      case link_header_parser:parse(LinkTokens) of
+        {ok, Links} -> 
+          filter_tent_rel_links(Links);
+        _Error ->
+          {error, couldnt_parse_link_header}
+      end;
+    _Error ->
+      {error, couldnt_parse_link_header}
+  end.
 
+filter_tent_rel_links(Links) ->
   % [[{uri, "/profile"}, {params, [{"rel", "https://tent.io/rels/profile"}]}]]
   ProfileUrls = lists:foldl(
     fun(Link, Acc) -> 
@@ -56,7 +66,10 @@ parse_link_value(LinkHeaderValue) ->
             Acc
         end
     end, [], Links),
-  {ok, lists:reverse(ProfileUrls)}.
+  case ProfileUrls of
+    [] -> {error, link_header_has_no_tent_rel};
+    _Any -> {ok, lists:reverse(ProfileUrls)}
+  end.
 
 extract_link_value(Headers) ->
   case proplists:get_value("Link", Headers) of

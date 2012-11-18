@@ -33,8 +33,8 @@ fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) ->
       {redirect, proplists:get_value("Location", Headers)}
   end;
 
-fetch_profile(http_header, BadResponse) ->
-  ?DEBUG("unsuccessful HEAD request : ~p~n", [BadResponse]),
+fetch_profile(http_header, _BadResponse) ->
+  ?DEBUG("unsuccessful HEAD request : ~p~n", [_BadResponse]),
   {error, non_success_http_response};
 
 fetch_profile(html_head_tag, _Url) ->
@@ -63,3 +63,4 @@ extract_link_value(Headers) ->
     undefined -> proplists:get_value("link", Headers);
     LinkValue -> LinkValue
   end.
+

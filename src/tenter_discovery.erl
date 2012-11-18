@@ -4,39 +4,38 @@
 -include("tenter.hrl").
 
 -export([
-  discover/1
+  discover/1,
+  fetch_profile/2
 ]).
 
 discover(Url) ->
-  case fetch_profile(http_header, Url)  of
+  case fetch_profile(http_header, ibrowse:send_req(Url, [], head))  of
     {ok, Profiles} ->
       Profiles;
-    Other ->
-      io:fwrite("couldn't fetch profile URL via HTTP header ~w~n", [Other]),
+    {redirect, RedirectUrl} ->
+      discover(RedirectUrl);
+    _Other ->
       fetch_profile(html_head_tag, Url)
   end.
 
-fetch_profile(http_header, Url) ->
-  case ibrowse:send_req(Url, [], head) of
-    {ok, StatusCode, Headers, _Body} ->
-      case StatusCode of
-        "200" ->
-          case extract_link_value(Headers) of
-            undefined -> {error, link_header_not_present};
-            LinkHeaderValue -> parse_link_value(LinkHeaderValue)
-          end;
-        "301" ->
-          fetch_profile(http_header, proplists:get_value("Location", Headers));
-        "302" ->
-          fetch_profile(http_header, proplists:get_value("Location", Headers))
+fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) ->
+  case StatusCode of
+    "200" ->
+      case extract_link_value(Headers) of
+        undefined -> {error, link_header_not_present};
+        LinkHeaderValue -> parse_link_value(LinkHeaderValue)
       end;
-    BadResponse ->
-      io:format("unsuccessful HEAD request to ~s : ~p~n", [Url, BadResponse]),
-      {error, non_success_http_response}
+    "301" ->
+      {redirect, proplists:get_value("Location", Headers)};
+    "302" ->
+      {redirect, proplists:get_value("Location", Headers)}
   end;
 
+fetch_profile(http_header, BadResponse) ->
+  {error, non_success_http_response};
+
 fetch_profile(html_head_tag, _Url) ->
-  "foo".
+  {error, html_head_tag_discover_not_implemented}.
 
 parse_link_value(LinkHeaderValue) ->
   {ok, LinkTokens, _EndLine} = link_header_lexer:string(LinkHeaderValue),

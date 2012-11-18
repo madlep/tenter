@@ -20,7 +20,10 @@ discover(Url) ->
       fetch_profile(html_head_tag, Url)
   end.
 
-fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) when StatusCode == "200"; StatusCode == "301"; StatusCode == "302" ->
+fetch_profile(http_header, {ok, StatusCode, Headers, _Body}) 
+  when StatusCode == "200"; 
+       StatusCode == "301"; 
+       StatusCode == "302" ->
   case StatusCode of
     "200" ->
       case extract_link_value(Headers) of

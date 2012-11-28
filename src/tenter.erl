@@ -4,8 +4,9 @@
 -include("tenter.hrl").
 
 -export([
-  create/2,
-  discover/1
+  discover/1,
+  start/1,
+  get_profile/1
 ]).
 
 create(Servers, Options) ->
@@ -13,4 +14,11 @@ create(Servers, Options) ->
 
 discover(Url) ->
   tenter_discovery:discover(Url).
+
+start(EntityUrls) ->
+  tenter_http_client:start_link(EntityUrls).
+
+get_profile(HttpClient) ->
+  tenter_profile:get_profile(HttpClient).
+
 

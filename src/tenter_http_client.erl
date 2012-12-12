@@ -20,7 +20,7 @@ init(EntityUrls) ->
 
 handle_call({http, HttpMethod, Path}, _From, EntityUrls) ->
   Http = fun(Url, not_found_yet) ->
-      ?DEBUG("making HTTP ~p call to ~s", [HttpMethod, Url ++ Path]),
+      ?DEBUG("making HTTP ~p call to ~s~n", [HttpMethod, Url ++ Path]),
       case ibrowse:send_req(Url ++ Path, [], HttpMethod) of 
         {ok, StatusCodeStr, _Headers, Body} -> 
           {StatusCode, []} = string:to_integer(StatusCodeStr),

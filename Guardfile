@@ -3,4 +3,5 @@
 guard 'shell' do
   watch(/src\/.*/) { `make eunit` }
   watch(/test\/.*/) { `make eunit` }
+  watch(/include\/.*/) { `make eunit` }
 end

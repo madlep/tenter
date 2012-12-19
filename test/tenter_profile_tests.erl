@@ -18,13 +18,13 @@
         \"version\": 1
     }, 
     \"https://tent.io/types/info/core/v0.1.0\": {
-        \"entity\": \"https://mrexample.tent.is\", 
+        \"entity\": \"https://mrexample.tent.example.com\", 
         \"licenses\": [], 
         \"permissions\": {
             \"public\": true
         }, 
         \"servers\": [
-            \"https://mrexample.tent.is/tent\"
+            \"https://mrexample.tent.example.com/tent\"
         ], 
         \"tent_version\": \"0.2\", 
         \"version\": 1
@@ -45,3 +45,8 @@ build_json_basic_test() ->
   ?assertEqual(<<"http://example.com/avatar.png">>, Basic#info_basic.avatar_url),
   ?assertEqual(<<"I like testing">>, Basic#info_basic.bio),
   ?assertEqual(<<"2012-12-13">>, Basic#info_basic.birthdate),
+  ?assertEqual(<<"male">>, Basic#info_basic.gender),
+  ?assertEqual(<<"Melbourne, Australia">>, Basic#info_basic.location),
+  ?assertEqual(<<"mrexample">>, Basic#info_basic.name),
+  ?assertEqual([{<<"public">>, true}], Basic#info_basic.permissions),
+  ?assertEqual(1, Basic#info_basic.version).

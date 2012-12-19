@@ -1,5 +1,4 @@
 -module(tenter_discovery).
--author('madlep@madlep.com').
 
 -include("tenter.hrl").
 -include("debug.hrl").

@@ -1,5 +1,4 @@
 -module(tenter_profile).
--author('madlep@madlep.com').
 
 -include("tenter.hrl").
 

@@ -1,5 +1,4 @@
 -module(tenter_app).
--author('madlep@madlep.com').
 
 -behaviour(application).
 

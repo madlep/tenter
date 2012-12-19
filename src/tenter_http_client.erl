@@ -1,6 +1,5 @@
 -module(tenter_http_client).
 -behaviour(gen_server).
--author('madlep@madlep.com').
 
 -include("tenter.hrl").
 -include("debug.hrl").

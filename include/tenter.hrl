@@ -28,8 +28,3 @@
   version
 }).
 
--record(birthdate, {
-  year,
-  month,
-  day
-}).

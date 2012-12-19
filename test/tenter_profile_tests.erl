@@ -44,4 +44,4 @@ build_json_basic_test() ->
   Basic = basic(),
   ?assertEqual(<<"http://example.com/avatar.png">>, Basic#info_basic.avatar_url),
   ?assertEqual(<<"I like testing">>, Basic#info_basic.bio),
-  ?assertEqual(#birthdate{year=2012, month=12, day=13}, Basic#info_basic.birthdate).
+  ?assertEqual(<<"2012-12-13">>, Basic#info_basic.birthdate),
